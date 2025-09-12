@@ -21,6 +21,9 @@
 		}
 	</script>
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	<!-- JSZip & FileSaver for Download All (ZIP) -->
+	<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 	<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🖼️</text></svg>">
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100">
@@ -29,15 +32,15 @@
 			<h1 class="text-xl md:text-2xl font-semibold">Image Resizer & Compressor</h1>
 			<div class="flex items-center gap-3">
 				<button id="themeToggle" class="inline-flex items-center justify-center w-10 h-10 rounded-md border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200" aria-label="Toggle dark mode" title="Toggle theme">
-                    <!-- Moon icon (shown in light mode) -->
-                    <svg class="w-5 h-5 dark:hidden" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M21.752 15.002A9.718 9.718 0 0 1 12.003 22C6.478 22 2 17.523 2 12A9.718 9.718 0 0 1 8.998 2.248a.75.75 0 0 1 .92.92A8.218 8.218 0 0 0 10.25 5c0 4.556 3.694 8.25 8.25 8.25c.69 0 1.365-.084 2.006-.242a.75.75 0 0 1 1.246.994z"/>
-                    </svg>
-                    <!-- Sun icon (shown in dark mode) -->
-                    <svg class="w-5 h-5 hidden dark:inline" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M12 4a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 13a5 5 0 1 0 0-10a5 5 0 0 0 0 10zm7-6a1 1 0 0 1 1 1h1a1 1 0 1 1 0 2h-1a1 1 0 1 1-2 0a1 1 0 0 1 1-1zm-7 7a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zM4 12a1 1 0 0 1 1-1H6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1zm12.95-6.364a1 1 0 0 1 1.414 0l.707.707a1 1 0 0 1-1.414 1.414l-.707-.707a1 1 0 0 1 0-1.414zM5.636 17.95a1 1 0 0 1 1.414 0l.707.707A1 1 0 0 1 6.343 20.07l-.707-.707a1 1 0 0 1 0-1.414zM5.636 5.636a1 1 0 0 1 1.414-1.414l.707.707A1 1 0 0 1 6.343 6.343l-.707-.707a1 1 0 0 1 0-1.414zm12.02 12.02a1 1 0 0 1 1.414 0l.707.707a1 1 0 0 1-1.414 1.414l-.707-.707a1 1 0 0 1 0-1.414z"/>
-                    </svg>
-                </button>
+					<!-- Moon icon (shown in light mode) -->
+					<svg class="w-5 h-5 dark:hidden" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<path d="M21.752 15.002A9.718 9.718 0 0 1 12.003 22C6.478 22 2 17.523 2 12A9.718 9.718 0 0 1 8.998 2.248a.75.75 0 0 1 .92.92A8.218 8.218 0 0 0 10.25 5c0 4.556 3.694 8.25 8.25 8.25c.69 0 1.365-.084 2.006-.242a.75.75 0 0 1 1.246.994z"/>
+					</svg>
+					<!-- Sun icon (shown in dark mode) -->
+					<svg class="w-5 h-5 hidden dark:inline" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<path d="M12 4a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 13a5 5 0 1 0 0-10a5 5 0 0 0 0 10zm7-6a1 1 0 0 1 1 1h1a1 1 0 1 1 0 2h-1a1 1 0 1 1-2 0a1 1 0 0 1 1-1zm-7 7a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zM4 12a1 1 0 0 1 1-1H6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1zm12.95-6.364a1 1 0 0 1 1.414 0l.707.707a1 1 0 0 1-1.414 1.414l-.707-.707a1 1 0 0 1 0-1.414zM5.636 17.95a1 1 0 0 1 1.414 0l.707.707A1 1 0 0 1 6.343 20.07l-.707-.707a1 1 0 0 1 0-1.414zM5.636 5.636a1 1 0 0 1 1.414-1.414l.707.707A1 1 0 0 1 6.343 6.343l-.707-.707a1 1 0 0 1 0-1.414zm12.02 12.02a1 1 0 0 1 1.414 0l.707.707a1 1 0 0 1-1.414 1.414l-.707-.707a1 1 0 0 1 0-1.414z"/>
+					</svg>
+				</button>
 			</div>
 		</div>
 	</header>
@@ -64,6 +67,18 @@
 						<div>
 							<label class="block text-xs text-slate-500 mb-1 dark:text-slate-400">Height (px)</label>
 							<input id="targetHeight" type="number" min="1" placeholder="e.g. 720" class="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-600">
+						</div>
+						<div class="col-span-2">
+							<label class="block text-xs text-slate-500 mb-1 dark:text-slate-400">Presets</label>
+							<select id="presetSize" class="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-600">
+								<option value="">None</option>
+								<option value="1920x1080">1920 x 1080 (Full HD)</option>
+								<option value="1280x720">1280 x 720 (HD)</option>
+								<option value="1080x1080">1080 x 1080 (Square)</option>
+								<option value="800x600">800 x 600</option>
+								<option value="600x600">600 x 600 (Square)</option>
+								<option value="512x512">512 x 512 (Square)</option>
+							</select>
 						</div>
 					</div>
 					<div class="flex items-center gap-2 mt-2">
@@ -113,7 +128,10 @@
 				<div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm dark:bg-slate-800 dark:border-slate-700">
 					<div class="flex items-center justify-between mb-3">
 						<h2 class="font-medium">4) Preview & Download</h2>
-						<div class="text-xs text-slate-500 dark:text-slate-400"><span id="summaryText">No images selected</span></div>
+						<div class="flex items-center gap-2">
+							<div class="text-xs text-slate-500 dark:text-slate-400"><span id="summaryText">No images selected</span></div>
+							<button id="downloadAllBtn" class="inline-flex items-center justify-center rounded-md bg-slate-900 text-white px-3 py-1.5 text-xs hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50" disabled>Download All (ZIP)</button>
+						</div>
 					</div>
 					<div id="previewList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 				</div>

@@ -10,7 +10,6 @@
 		} else {
 			root.classList.remove('dark');
 		}
-		// No text changes; icons swap via CSS classes
 	}
 	function initTheme() {
 		const saved = localStorage.getItem(THEME_KEY);
@@ -49,6 +48,8 @@
 	const $quality = $('#quality');
 	const $outputFormat = $('#outputFormat');
 	const $targetSizeKB = $('#targetSizeKB');
+	const $presetSize = $('#presetSize');
+	const $downloadAllBtn = $('#downloadAllBtn');
 
 	function formatBytes(bytes) {
 		if (bytes === 0) return '0 B';
@@ -63,6 +64,7 @@
 		$previewList.empty();
 		$summaryText.text('No images selected');
 		$processBtn.prop('disabled', true);
+		$downloadAllBtn.prop('disabled', true);
 		$fileInput.val('');
 	}
 
@@ -70,11 +72,13 @@
 		if (!selectedFiles.length) {
 			$summaryText.text('No images selected');
 			$processBtn.prop('disabled', true);
+			$downloadAllBtn.prop('disabled', true);
 			return;
 		}
 		const totalSize = selectedFiles.reduce((acc, f) => acc + (f.file?.size || 0), 0);
 		$summaryText.text(selectedFiles.length + ' file(s) • ' + formatBytes(totalSize));
 		$processBtn.prop('disabled', false);
+		$downloadAllBtn.prop('disabled', selectedFiles.every(f => !f.processed));
 	}
 
 	function readFileAsDataURL(file) {
@@ -330,6 +334,39 @@
 		$quality.prop('disabled', hasTarget);
 	}
 	$targetSizeKB.on('input change', syncQualityDisabled);
+
+	// Preset sizes
+	$presetSize.on('change', function () {
+		const val = $presetSize.val();
+		if (!val) return;
+		const parts = val.split('x');
+		const w = parseInt(parts[0], 10);
+		const h = parseInt(parts[1], 10);
+		if (w > 0 && h > 0) {
+			$targetWidth.val(w);
+			$targetHeight.val(h);
+		}
+	});
+
+	// Download All (ZIP)
+	async function downloadAllZip() {
+		const zip = new JSZip();
+		const folder = zip.folder('images');
+		for (const item of selectedFiles) {
+			if (!item.processed?.blob) continue;
+			const name = item.file.name.replace(/\.[^.]+$/, '');
+			const ext = item.processed.mime.split('/')[1] || 'jpg';
+			const fileName = name + '-resized.' + ext;
+			const arrayBuffer = await item.processed.blob.arrayBuffer();
+			folder.file(fileName, arrayBuffer);
+		}
+		const content = await zip.generateAsync({ type: 'blob' });
+		saveAs(content, 'images-resized.zip');
+	}
+	$downloadAllBtn.on('click', function () {
+		if ($downloadAllBtn.is(':disabled')) return;
+		downloadAllZip();
+	});
 
 	// Defaults
 	$targetWidth.val('1280');
