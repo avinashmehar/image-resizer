@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Image Resizer & Compressor</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = {
+			darkMode: 'class',
+			theme: {
+				extend: {
+					fontFamily: {
+						sans: ['Inter', 'ui-sans-serif', 'system-ui']
+					}
+				}
+			}
+		}
+	</script>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🖼️</text></svg>">
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100">
+	<header class="border-b border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800">
+		<div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+			<h1 class="text-xl md:text-2xl font-semibold">Image Resizer & Compressor</h1>
+			<div class="flex items-center gap-3">
+				<button id="themeToggle" class="inline-flex items-center justify-center w-10 h-10 rounded-md border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200" aria-label="Toggle dark mode" title="Toggle theme">
+                    <!-- Moon icon (shown in light mode) -->
+                    <svg class="w-5 h-5 dark:hidden" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M21.752 15.002A9.718 9.718 0 0 1 12.003 22C6.478 22 2 17.523 2 12A9.718 9.718 0 0 1 8.998 2.248a.75.75 0 0 1 .92.92A8.218 8.218 0 0 0 10.25 5c0 4.556 3.694 8.25 8.25 8.25c.69 0 1.365-.084 2.006-.242a.75.75 0 0 1 1.246.994z"/>
+                    </svg>
+                    <!-- Sun icon (shown in dark mode) -->
+                    <svg class="w-5 h-5 hidden dark:inline" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 4a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 13a5 5 0 1 0 0-10a5 5 0 0 0 0 10zm7-6a1 1 0 0 1 1 1h1a1 1 0 1 1 0 2h-1a1 1 0 1 1-2 0a1 1 0 0 1 1-1zm-7 7a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zM4 12a1 1 0 0 1 1-1H6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1zm12.95-6.364a1 1 0 0 1 1.414 0l.707.707a1 1 0 0 1-1.414 1.414l-.707-.707a1 1 0 0 1 0-1.414zM5.636 17.95a1 1 0 0 1 1.414 0l.707.707A1 1 0 0 1 6.343 20.07l-.707-.707a1 1 0 0 1 0-1.414zM5.636 5.636a1 1 0 0 1 1.414-1.414l.707.707A1 1 0 0 1 6.343 6.343l-.707-.707a1 1 0 0 1 0-1.414zm12.02 12.02a1 1 0 0 1 1.414 0l.707.707a1 1 0 0 1-1.414 1.414l-.707-.707a1 1 0 0 1 0-1.414z"/>
+                    </svg>
+                </button>
+			</div>
+		</div>
+	</header>
+
+	<main class="max-w-5xl mx-auto px-4 py-6">
+		<section class="grid md:grid-cols-3 gap-4 md:gap-6">
+			<div class="md:col-span-1 space-y-4">
+				<div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm dark:bg-slate-800 dark:border-slate-700">
+					<h2 class="font-medium mb-3">1) Select Images</h2>
+					<input id="fileInput" type="file" accept="image/*" multiple class="hidden">
+					<div id="dropZone" class="border-2 border-dashed border-slate-300 hover:border-slate-400 rounded-lg p-6 text-center cursor-pointer bg-slate-50 hover:bg-slate-100 transition dark:bg-slate-900 dark:border-slate-700 dark:hover:border-slate-500">
+						<p class="text-slate-700 font-medium dark:text-slate-200">Click to choose or drag & drop</p>
+						<p class="text-xs text-slate-500 mt-1 dark:text-slate-400">PNG • JPG • JPEG • WEBP • GIF</p>
+					</div>
+				</div>
+
+				<div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm dark:bg-slate-800 dark:border-slate-700">
+					<h2 class="font-medium mb-3">2) Resize Options</h2>
+					<div class="grid grid-cols-2 gap-3">
+						<div>
+							<label class="block text-xs text-slate-500 mb-1 dark:text-slate-400">Width (px)</label>
+							<input id="targetWidth" type="number" min="1" placeholder="e.g. 1280" class="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-600">
+						</div>
+						<div>
+							<label class="block text-xs text-slate-500 mb-1 dark:text-slate-400">Height (px)</label>
+							<input id="targetHeight" type="number" min="1" placeholder="e.g. 720" class="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-600">
+						</div>
+					</div>
+					<div class="flex items-center gap-2 mt-2">
+						<input id="lockRatio" type="checkbox" class="rounded border-slate-300 text-indigo-600 dark:border-slate-600">
+						<label for="lockRatio" class="text-sm text-slate-700 dark:text-slate-200">Maintain aspect ratio</label>
+					</div>
+				</div>
+
+				<div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm dark:bg-slate-800 dark:border-slate-700">
+					<h2 class="font-medium mb-3">3) Output & Quality</h2>
+					<div class="grid grid-cols-2 gap-3">
+						<div>
+							<label class="block text-xs text-slate-500 mb-1 dark:text-slate-400">Format</label>
+							<select id="outputFormat" class="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-600">
+								<option value="original">Original</option>
+								<option value="image/jpeg">JPEG</option>
+								<option value="image/png">PNG</option>
+								<option value="image/webp">WEBP</option>
+							</select>
+						</div>
+						<div>
+							<label class="block text-xs text-slate-500 mb-1 dark:text-slate-400">Quality</label>
+							<input id="quality" type="range" min="0.1" max="1" step="0.05" value="0.8" class="w-full">
+							<div class="flex justify-between text-[11px] text-slate-500 dark:text-slate-400">
+								<span>Smaller</span>
+								<span>Better</span>
+							</div>
+						</div>
+						<div class="col-span-2">
+							<label class="block text-xs text-slate-500 mb-1 dark:text-slate-400">Target size (KB) — optional</label>
+							<input id="targetSizeKB" type="number" min="1" placeholder="e.g. 300" class="w-full rounded-md border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-600">
+							<p class="text-[11px] text-slate-500 mt-1 dark:text-slate-400">For JPEG/WEBP we will auto-adjust quality to reach this size. PNG ignores quality.</p>
+						</div>
+					</div>
+					<div class="flex gap-2 mt-3">
+						<button id="processBtn" class="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 text-white px-3 py-2 text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+							<span>Process Images</span>
+						</button>
+						<button id="clearBtn" class="inline-flex items-center justify-center gap-2 rounded-md bg-slate-200 text-slate-700 px-3 py-2 text-sm hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">
+							<span>Clear</span>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="md:col-span-2">
+				<div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm dark:bg-slate-800 dark:border-slate-700">
+					<div class="flex items-center justify-between mb-3">
+						<h2 class="font-medium">4) Preview & Download</h2>
+						<div class="text-xs text-slate-500 dark:text-slate-400"><span id="summaryText">No images selected</span></div>
+					</div>
+					<div id="previewList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<footer class="text-center text-xs text-slate-500 py-6 dark:text-slate-400">All rights reserved</footer>
+
+	<script src="./assets/js/app.js"></script>
+</body>
+</html>
