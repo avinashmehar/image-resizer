@@ -4,7 +4,7 @@
   "description": "A lightweight, client-side web app to resize and compress images directly in your browser. Built with Tailwind CSS and jQuery. No uploads or servers required.",
   "main": "index.js",
   "scripts": {
-    "build": "echo 'No web build step required'",
+    "build": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
