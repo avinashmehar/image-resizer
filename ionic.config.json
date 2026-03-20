@@ -1,0 +1,7 @@
+{
+  "name": "Image Resizer",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "custom"
+}
