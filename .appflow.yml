@@ -1,0 +1,6 @@
+version: 2
+build:
+  native:
+    hooks:
+      pre_build:
+        - npm install
