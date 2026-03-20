@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/princu2212/image-resizer#readme",
   "dependencies": {
+    "@capacitor-community/media": "^9.0.2",
     "@capacitor/android": "^8.2.0",
     "@capacitor/cli": "^8.2.0",
     "@capacitor/core": "^8.2.0",

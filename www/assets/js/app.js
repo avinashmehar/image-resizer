@@ -77,11 +77,29 @@
 				reader.readAsDataURL(blob);
 				reader.onloadend = async function() {
 					const base64data = reader.result;
+					const base64Content = base64data.includes(',') ? base64data.split(',')[1] : base64data;
 					const Filesystem = window.Capacitor.Plugins.Filesystem;
+					const Media = window.Capacitor.Plugins.Media;
+					
+					const savedCacheFile = await Filesystem.writeFile({
+						path: filename,
+						data: base64Content,
+						directory: 'CACHE'
+					});
+
+					if (Media) {
+						try {
+							await Media.savePhoto({ path: savedCacheFile.uri });
+							showToast('Saved to Camera Roll! 🖼️');
+							return;
+						} catch(err) {
+							console.error('Save Photo error:', err);
+						}
+					}
 					
 					await Filesystem.writeFile({
 						path: 'ImageResizer/' + filename,
-						data: base64data,
+						data: base64Content,
 						directory: 'DOCUMENTS',
 						recursive: true
 					});
@@ -101,6 +119,8 @@
 	function reset() {
 		selectedFiles = [];
 		$previewList.empty();
+		const pC = document.getElementById('previewContainer');
+		if (pC) pC.classList.add('hidden');
 		$summaryText.text('No images selected');
 		$processBtn.prop('disabled', true);
 		$downloadAllBtn.prop('disabled', true);
@@ -271,12 +291,15 @@
 				console.error('Failed to load image', err);
 			}
 		}
-		updateSummary();
+		
+		const pC = document.getElementById('previewContainer');
 		if (selectedFiles.length > 0) {
-			setTimeout(() => {
-				document.getElementById('previewList').scrollIntoView({ behavior: 'smooth', block: 'start' });
-			}, 100);
+			if (pC) pC.classList.remove('hidden');
+		} else {
+			if (pC) pC.classList.add('hidden');
 		}
+
+		updateSummary();
 	}
 
 	async function processAll() {
