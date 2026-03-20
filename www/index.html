@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Image Resizer & Compressor</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0">
+	<title>Image Resizer Pro</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -24,12 +24,16 @@
 	<!-- JSZip & FileSaver for Download All (ZIP) -->
 	<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+	
+	<!-- Pull to Refresh JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pulltorefreshjs/0.1.22/index.umd.min.js"></script>
+
 	<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🖼️</text></svg>">
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100">
-	<header class="border-b border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800">
-		<div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-			<h1 class="text-xl md:text-2xl font-semibold">Image Resizer & Compressor</h1>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 select-none md:select-auto overscroll-none" id="appBody">
+	<header class="border-b border-slate-200 bg-white/95 backdrop-blur dark:bg-slate-900/95 dark:border-slate-800 sticky top-0 z-50 pt-[env(safe-area-inset-top)]">
+		<div class="w-full px-4 py-3 flex items-center justify-between">
+			<h1 class="text-xl font-semibold">Image Resizer Pro</h1>
 			<div class="flex items-center gap-3">
 				<button id="themeToggle" class="inline-flex items-center justify-center w-10 h-10 rounded-md border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200" aria-label="Toggle dark mode" title="Toggle theme">
 					<!-- Moon icon (shown in light mode) -->
@@ -45,15 +49,18 @@
 		</div>
 	</header>
 
-	<main class="max-w-5xl mx-auto px-4 py-6">
-		<section class="grid md:grid-cols-3 gap-4 md:gap-6">
+	<main class="w-full px-4 py-6 pb-[env(safe-area-inset-bottom)]" id="mainContent">
+		<section class="flex flex-col gap-6">
 			<div class="md:col-span-1 space-y-4">
 				<div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm dark:bg-slate-800 dark:border-slate-700">
 					<h2 class="font-medium mb-3">1) Select Images</h2>
 					<input id="fileInput" type="file" accept="image/*" multiple class="hidden">
-					<div id="dropZone" class="border-2 border-dashed border-slate-300 hover:border-slate-400 rounded-lg p-6 text-center cursor-pointer bg-slate-50 hover:bg-slate-100 transition dark:bg-slate-900 dark:border-slate-700 dark:hover:border-slate-500">
-						<p class="text-slate-700 font-medium dark:text-slate-200">Click to choose or drag & drop</p>
-						<p class="text-xs text-slate-500 mt-1 dark:text-slate-400">PNG • JPG • JPEG • WEBP • GIF</p>
+					<div id="dropZone" class="border-2 border-dashed border-slate-300 hover:border-indigo-400 rounded-xl p-8 text-center cursor-pointer bg-slate-50 hover:bg-slate-100 transition active:scale-[0.98] dark:bg-slate-800/50 dark:border-slate-600 dark:hover:border-indigo-500">
+						<svg class="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500 mb-3" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+							<path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+						</svg>
+						<p class="text-slate-700 font-medium dark:text-slate-200">Tap to select photos</p>
+						<p class="text-sm text-slate-500 mt-1 dark:text-slate-400">JPG, PNG, WEBP</p>
 					</div>
 				</div>
 
@@ -113,29 +120,32 @@
 							<p class="text-[11px] text-slate-500 mt-1 dark:text-slate-400">For JPEG/WEBP we will auto-adjust quality to reach this size. PNG ignores quality.</p>
 						</div>
 					</div>
-					<div class="flex gap-2 mt-3">
-						<button id="processBtn" class="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 text-white px-3 py-2 text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
-							<span>Process Images</span>
+					<div class="flex gap-3 mt-4">
+						<button id="processBtn" class="flex-1 items-center justify-center rounded-xl bg-indigo-600 text-white px-4 py-3.5 font-medium shadow active:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition transform active:scale-[0.98]">
+							Process Images
 						</button>
-						<button id="clearBtn" class="inline-flex items-center justify-center gap-2 rounded-md bg-slate-200 text-slate-700 px-3 py-2 text-sm hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">
-							<span>Clear</span>
+						<button id="clearBtn" class="flex-1 items-center justify-center rounded-xl bg-slate-200 text-slate-700 px-4 py-3.5 font-medium hover:bg-slate-300 active:bg-slate-300 transition dark:bg-slate-700 dark:text-slate-200 dark:active:bg-slate-600">
+							Clear
 						</button>
 					</div>
 				</div>
 			</div>
 
-			<div class="md:col-span-2">
+			<div class="w-full">
 				<div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm dark:bg-slate-800 dark:border-slate-700">
 					<div class="flex items-center justify-between mb-3">
 						<h2 class="font-medium">4) Preview & Download</h2>
 						<div class="flex items-center gap-2">
 							<div class="text-xs text-slate-500 dark:text-slate-400"><span id="summaryText">No images selected</span></div>
-							<button id="downloadAllBtn" class="inline-flex items-center justify-center rounded-md bg-slate-900 text-white px-3 py-1.5 text-xs hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50" disabled>Download All (ZIP)</button>
+							<button id="downloadAllBtn" class="inline-flex items-center justify-center rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-medium active:bg-black dark:bg-slate-700 dark:active:bg-slate-600 disabled:opacity-50 transition" disabled>Download All</button>
 						</div>
 					</div>
 					<div id="previewList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 				</div>
 			</div>
+			
+			<!-- Bottom padding specifier for mobile if there's no fixed footer -->
+			<div class="h-10"></div>
 		</section>
 	</main>
 

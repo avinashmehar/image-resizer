@@ -59,6 +59,38 @@
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 	}
 
+	async function downloadFileNative(blob, filename) {
+		if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+			try {
+				const reader = new FileReader();
+				reader.readAsDataURL(blob);
+				reader.onloadend = async function() {
+					const base64data = reader.result;
+					const Filesystem = window.Capacitor.Plugins.Filesystem;
+					const Share = window.Capacitor.Plugins.Share;
+					
+					const savedFile = await Filesystem.writeFile({
+						path: filename,
+						data: base64data,
+						directory: 'CACHE'
+					});
+					
+					await Share.share({
+						title: 'Share / Save Image',
+						url: savedFile.uri,
+						dialogTitle: 'Save or Share'
+					});
+				};
+			} catch(e) {
+				console.error('Native download error: ', e);
+				saveAs(blob, filename); // ultimate fallback
+			}
+		} else {
+			// standard web download
+			saveAs(blob, filename);
+		}
+	}
+
 	function reset() {
 		selectedFiles = [];
 		$previewList.empty();
@@ -185,24 +217,21 @@
 		$sizes.text(origInfo + procInfo);
 
 		const $actions = $('<div class="flex gap-2 pt-2"></div>');
-		const $download = $('<a class="inline-flex items-center justify-center px-2 py-1 rounded bg-indigo-600 text-white text-xs hover:bg-indigo-700">Download</a>');
-		const $remove = $('<button class="inline-flex items-center justify-center px-2 py-1 rounded bg-slate-200 text-slate-700 text-xs hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">Remove</button>');
+		const $download = $('<button class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-medium active:bg-indigo-700 transition">Download</button>');
+		const $remove = $('<button class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-slate-200 text-slate-700 text-xs font-medium active:bg-slate-300 transition dark:bg-slate-700 dark:text-slate-200 dark:active:bg-slate-600">Remove</button>');
 
 		if (processed?.url) {
 			const ext = processed.mime.split('/')[1] || 'jpg';
 			const base = name.replace(/\.[^.]+$/, '');
-			$download.attr('href', processed.url);
-			$download.attr('download', base + '-resized.' + ext);
+			const fileName = base + '-resized.' + ext;
+			$download.on('click', function(e) {
+				e.preventDefault();
+				downloadFileNative(processed.blob, fileName);
+			});
 		} else {
 			$download.addClass('opacity-50 cursor-not-allowed');
-			$download.attr('tabindex', '-1');
+			$download.attr('disabled', true);
 		}
-
-		$download.on('click', function (e) {
-			if (!$download.attr('href')) {
-				e.preventDefault();
-			}
-		});
 
 		$remove.on('click', function () {
 			selectedFiles = selectedFiles.filter(function (f) { return f.id !== id; });
@@ -361,7 +390,7 @@
 			folder.file(fileName, arrayBuffer);
 		}
 		const content = await zip.generateAsync({ type: 'blob' });
-		saveAs(content, 'images-resized.zip');
+		downloadFileNative(content, 'images-resized.zip');
 	}
 	$downloadAllBtn.on('click', function () {
 		if ($downloadAllBtn.is(':disabled')) return;
@@ -373,4 +402,18 @@
 	$lockRatio.prop('checked', true);
 	syncQualityDisabled();
 	updateSummary();
+
+	// Initialize Pull to Refresh
+	if (typeof PullToRefresh !== 'undefined') {
+		PullToRefresh.init({
+			mainElement: '#appBody',
+			triggerElement: '#appBody',
+			instructionsPullToRefresh: 'Pull down to reset app',
+			instructionsReleaseToRefresh: 'Release to reset',
+			instructionsRefreshing: 'Resetting...',
+			onRefresh: function() {
+				reset();
+			}
+		});
+	}
 })();
