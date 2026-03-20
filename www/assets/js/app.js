@@ -59,6 +59,17 @@
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 	}
 
+	function showToast(msg) {
+		const t = document.createElement('div');
+		t.className = 'fixed bottom-[max(24px,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-full shadow-2xl text-sm font-semibold z-[100] transition-opacity duration-300 w-max max-w-[90vw] text-center dark:bg-indigo-600';
+		t.innerText = msg;
+		document.body.appendChild(t);
+		setTimeout(() => {
+			t.style.opacity = '0';
+			setTimeout(() => t.remove(), 300);
+		}, 3000);
+	}
+
 	async function downloadFileNative(blob, filename) {
 		if (window.Capacitor && window.Capacitor.isNativePlatform()) {
 			try {
@@ -67,19 +78,15 @@
 				reader.onloadend = async function() {
 					const base64data = reader.result;
 					const Filesystem = window.Capacitor.Plugins.Filesystem;
-					const Share = window.Capacitor.Plugins.Share;
 					
-					const savedFile = await Filesystem.writeFile({
-						path: filename,
+					await Filesystem.writeFile({
+						path: 'ImageResizer/' + filename,
 						data: base64data,
-						directory: 'CACHE'
+						directory: 'DOCUMENTS',
+						recursive: true
 					});
 					
-					await Share.share({
-						title: 'Share / Save Image',
-						url: savedFile.uri,
-						dialogTitle: 'Save or Share'
-					});
+					showToast('Saved to Documents/ImageResizer');
 				};
 			} catch(e) {
 				console.error('Native download error: ', e);
@@ -216,9 +223,9 @@
 		}
 		$sizes.text(origInfo + procInfo);
 
-		const $actions = $('<div class="flex gap-2 pt-2"></div>');
-		const $download = $('<button class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-medium active:bg-indigo-700 transition">Download</button>');
-		const $remove = $('<button class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-slate-200 text-slate-700 text-xs font-medium active:bg-slate-300 transition dark:bg-slate-700 dark:text-slate-200 dark:active:bg-slate-600">Remove</button>');
+		const $actions = $('<div class="flex gap-2 pt-3"></div>');
+		const $download = $('<button class="inline-flex flex-1 items-center justify-center px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-md shadow-indigo-200 active:bg-indigo-700 transition dark:shadow-none">Save</button>');
+		const $remove = $('<button class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold active:bg-slate-200 transition dark:bg-slate-700/50 dark:text-slate-200 dark:active:bg-slate-600">Remove</button>');
 
 		if (processed?.url) {
 			const ext = processed.mime.split('/')[1] || 'jpg';
@@ -265,11 +272,20 @@
 			}
 		}
 		updateSummary();
+		if (selectedFiles.length > 0) {
+			setTimeout(() => {
+				document.getElementById('previewList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}, 100);
+		}
 	}
 
 	async function processAll() {
 		if (!selectedFiles.length) return;
-		$processBtn.prop('disabled', true).text('Processing...');
+		$processBtn.prop('disabled', true).html('<span class="opacity-80">Processing...</span>');
+		
+		// Yield to browser UI thread so "Processing..." button text renders before blocking JS executes
+		await new Promise(resolve => setTimeout(resolve, 50));
+		
 		try {
 			const options = {
 				targetWidth: parseInt($targetWidth.val(), 10) || undefined,
