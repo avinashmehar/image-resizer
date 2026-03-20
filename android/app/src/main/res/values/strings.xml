@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Image Resizer</string>
+    <string name="title_activity_main">Image Resizer</string>
+    <string name="package_name">com.avinash.imageresizer</string>
+    <string name="custom_url_scheme">com.avinash.imageresizer</string>
+</resources>

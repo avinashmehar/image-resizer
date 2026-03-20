@@ -1,0 +1,25 @@
+{
+  "name": "image-resizer",
+  "version": "1.0.0",
+  "description": "A lightweight, client-side web app to resize and compress images directly in your browser. Built with Tailwind CSS and jQuery. No uploads or servers required.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/princu2212/image-resizer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/princu2212/image-resizer/issues"
+  },
+  "homepage": "https://github.com/princu2212/image-resizer#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0"
+  }
+}
