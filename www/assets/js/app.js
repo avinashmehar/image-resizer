@@ -244,8 +244,9 @@
 		$sizes.text(origInfo + procInfo);
 
 		const $actions = $('<div class="flex gap-2 pt-3"></div>');
-		const $download = $('<button class="inline-flex flex-1 items-center justify-center px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-md shadow-indigo-200 active:bg-indigo-700 transition dark:shadow-none">Save</button>');
-		const $remove = $('<button class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold active:bg-slate-200 transition dark:bg-slate-700/50 dark:text-slate-200 dark:active:bg-slate-600">Remove</button>');
+		const $download = $('<button class="inline-flex flex-[2] items-center justify-center px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-md shadow-indigo-200 active:bg-indigo-700 transition dark:shadow-none">Save</button>');
+		const $view = $('<button class="inline-flex flex-1 items-center justify-center px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold active:bg-slate-200 transition dark:bg-slate-700/50 dark:text-slate-200 dark:active:bg-slate-600">View</button>');
+		const $remove = $('<button class="inline-flex items-center justify-center p-2.5 rounded-xl bg-slate-100 text-slate-500 active:bg-red-50 active:text-red-500 transition dark:bg-slate-700/50 dark:text-slate-400 dark:active:bg-red-900/20"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>');
 
 		if (processed?.url) {
 			const ext = processed.mime.split('/')[1] || 'jpg';
@@ -255,9 +256,15 @@
 				e.preventDefault();
 				downloadFileNative(processed.blob, fileName);
 			});
+			$view.on('click', function() {
+				const $modal = $('#previewModal');
+				$('#modalImage').attr('src', processed.url);
+				$modal.removeClass('hidden').addClass('flex');
+				$('#modalDownload').off('click').on('click', () => downloadFileNative(processed.blob, fileName));
+			});
 		} else {
-			$download.addClass('opacity-50 cursor-not-allowed');
-			$download.attr('disabled', true);
+			$download.addClass('opacity-50 cursor-not-allowed').attr('disabled', true);
+			$view.addClass('opacity-50 cursor-not-allowed').attr('disabled', true);
 		}
 
 		$remove.on('click', function () {
@@ -267,7 +274,7 @@
 		});
 
 		$meta.append($title, $sizes);
-		$actions.append($download, $remove);
+		$actions.append($download, $view, $remove);
 		$card.append($imgWrap, $meta, $('<div class="px-3 pb-3"></div>').append($actions));
 		return $card;
 	}
@@ -416,6 +423,16 @@
 		}
 	});
 
+	// Modal Close logic
+	function closePreviewModal() {
+		$('#previewModal').addClass('hidden').removeClass('flex');
+		$('#modalImage').attr('src', '');
+	}
+	$('#closePreview, #modalCloseBtn').on('click', closePreviewModal);
+	$('#previewModal').on('click', function(e) {
+		if (e.target === this) closePreviewModal();
+	});
+
 	// Download All (ZIP)
 	async function downloadAllZip() {
 		const zip = new JSZip();
@@ -435,6 +452,27 @@
 		if ($downloadAllBtn.is(':disabled')) return;
 		downloadAllZip();
 	});
+
+	// Defaults
+	$targetWidth.val('1280');
+	$lockRatio.prop('checked', true);
+	syncQualityDisabled();
+	updateSummary();
+
+	// Initialize Pull to Refresh
+	if (typeof PullToRefresh !== 'undefined') {
+		PullToRefresh.init({
+			mainElement: '#appBody',
+			triggerElement: '#appBody',
+			instructionsPullToRefresh: 'Pull down to reset app',
+			instructionsReleaseToRefresh: 'Release to reset',
+			instructionsRefreshing: 'Resetting...',
+			onRefresh: function() {
+				reset();
+			}
+		});
+	}
+})();
 
 	// Defaults
 	$targetWidth.val('1280');

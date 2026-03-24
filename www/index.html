@@ -156,6 +156,20 @@
 
 	<footer class="text-center text-xs text-slate-500 py-6 dark:text-slate-400">All rights reserved</footer>
 
+	<!-- Full-screen Preview Modal -->
+	<div id="previewModal" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center bg-black/95 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+		<button id="closePreview" class="absolute top-[env(safe-area-inset-top,20px)] right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 text-white active:scale-95 transition-transform" aria-label="Close preview">
+			<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+		</button>
+		<div class="w-full h-full flex items-center justify-center">
+			<img id="modalImage" src="" alt="Full size preview" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl shadow-indigo-500/10">
+		</div>
+		<div class="absolute bottom-[env(safe-area-inset-bottom,40px)] left-0 right-0 p-6 flex justify-center gap-4">
+			<button id="modalDownload" class="px-8 py-3.5 rounded-full bg-indigo-600 text-white font-bold shadow-lg active:bg-indigo-700 transition">Save Image</button>
+			<button id="modalCloseBtn" class="px-8 py-3.5 rounded-full bg-white/10 text-white font-bold backdrop-blur-md active:bg-white/20 transition">Close</button>
+		</div>
+	</div>
+
 	<script src="./assets/js/app.js"></script>
 </body>
 </html>
