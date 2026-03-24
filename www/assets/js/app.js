@@ -453,44 +453,4 @@
 		downloadAllZip();
 	});
 
-	// Defaults
-	$targetWidth.val('1280');
-	$lockRatio.prop('checked', true);
-	syncQualityDisabled();
-	updateSummary();
-
-	// Initialize Pull to Refresh
-	if (typeof PullToRefresh !== 'undefined') {
-		PullToRefresh.init({
-			mainElement: '#appBody',
-			triggerElement: '#appBody',
-			instructionsPullToRefresh: 'Pull down to reset app',
-			instructionsReleaseToRefresh: 'Release to reset',
-			instructionsRefreshing: 'Resetting...',
-			onRefresh: function() {
-				reset();
-			}
-		});
-	}
-})();
-
-	// Defaults
-	$targetWidth.val('1280');
-	$lockRatio.prop('checked', true);
-	syncQualityDisabled();
-	updateSummary();
-
-	// Initialize Pull to Refresh
-	if (typeof PullToRefresh !== 'undefined') {
-		PullToRefresh.init({
-			mainElement: '#appBody',
-			triggerElement: '#appBody',
-			instructionsPullToRefresh: 'Pull down to reset app',
-			instructionsReleaseToRefresh: 'Release to reset',
-			instructionsRefreshing: 'Resetting...',
-			onRefresh: function() {
-				reset();
-			}
-		});
-	}
 })();
